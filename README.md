@@ -1,31 +1,43 @@
-# DreamWeaver AI (Web PWA)
+DreamWeaver — Full paket (frontend + backend)
 
-## Dosyalar
-- index.html
-- manifest.json
-- sw.js
-- offline.html
-- (opsiyonel) server.js + package.json (mock backend)
+1) Dosya yapısı (repo root):
+ - index.html
+ - manifest.json
+ - sw.js
+ - offline.html
+ - icon-192x192.png
+ - icon-512x512.png
+ - server.js
+ - package.json
+ - .gitignore
+ - README.md
 
-## Local test
-1. Repo köküne icon-192x192.png ve icon-512x512.png ekleyin.
-2. (Opsiyonel) Mock backend çalıştırmak için:
-   - `npm install`
-   - `npm start` -> http://localhost:3000
-3. Basit test: `npx http-server -p 8080` veya GitHub Pages ile barındırın.
-4. Tarayıcıda siteyi açın; service worker register olur.
+2) Backend (API)
+ - Node 18+ önerilir.
+ - Terminal:
+    npm install
+    OPENAI_API_KEY="YOUR_KEY" npm start
+ - Sunucu 3000'de açılır. Eğer OPENAI_API_KEY yoksa local fallback çalışır.
 
-## APKCreator / WebView -> APK
-- Eğer APKCreator kullanıyorsanız:
-  - GitHub Pages veya herhangi bir HTTPS URL üzerinden barındırın (PWA için HTTPS zorunlu).
-  - WebView içeren APK oluştururken `start_url` ve manifest kullanımına dikkat: bazı WebView uygulamaları service worker ile tam uyumlu çalışmayabilir.
-  - Görselleri yerel olarak (apk içine) gömmek isterseniz, `index.html` içindeki tüm harici URL'leri (Google Fonts, placeholder) local kopyalarla değiştirin.
+3) Frontend (dev)
+ - Ayrı terminalde proje kökünde:
+    npx http-server -p 8080
+ - Tarayıcıda: http://localhost:8080
 
-## AI entegrasyonu
-- `analyzeDream`, `visualize`, `analyzeFortune` fonksiyonları backend çağrıları yapacak şekilde hazırlandı.
-- Gerçek AI için OpenAI veya başka bir görsel üretim API'si bağladığınızda backend'den çağırın (API anahtarlarını güvenli sunucu tarafında saklayın).
+4) Production / GitHub Pages + Hosted API
+ - Frontend'i GitHub Pages'e push et (HTTPS).
+ - Backend'i Render / Vercel (Node) veya Heroku üzerinde çalıştır.
+ - FRONTEND'deki API çağrılarını (API_BASE) gerekirse backend URL'sine güncelle.
 
-## Güvenlik & Gizlilik
-- Kullanıcı verilerini localStorage'da saklıyoruz — hassas veriler için server-side saklama önerilir.
-- API anahtarları & ödemeler için sunucu entegrasyonu gereklidir.
+5) APKCreator
+ - GitHub Pages URL'sini ver. HTTPS olmalı.
+ - WebView ayarlarında JS etkin olsun.
+ - Not: bazı WebView'larda service worker tam desteklenmez; offline özellikler sınırlı olabilir.
 
+6) OpenAI
+ - OPENAI_API_KEY env değişkeni ile backend'e ekle.
+ - Production için API anahtarlarını sunucuda sakla (asla client-side gönderme).
+
+7) Öneriler
+ - Görseller: icon-*.png yerel ekle.
+ - Görsel üretimi istersen backend `visualize` kısmını DALL·E / image api ile bağlayalım.
