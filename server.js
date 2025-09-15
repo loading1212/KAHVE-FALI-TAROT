@@ -1,33 +1,36 @@
-// server.js — basit mock API. Gerçek AI için OpenAI veya başka bir servise bağlayın.
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const app = express();
+import express from "express";
+import fetch from "node-fetch";
+import cors from "cors";
+
+const app=express();
 app.use(cors());
-app.use(bodyParser.json({limit:'2mb'}));
-app.use(express.static('public')); // statik dosyalar için
+app.use(express.json({limit:"2mb"}));
 
-app.post('/api/analyzeDream', (req, res) => {
-  const { text, zodiac, isPremium } = req.body || {};
-  // Basit kurallara dayalı mock response
-  const base = isPremium ? "Premium detay: Derin bir dönüşüm ve fırsat dönemi." : "Ücretsiz özet: Yeni başlangıçlara hazırlanın.";
-  res.json({ analysis: `${base} (burç: ${zodiac}) — kısaca: ${text.slice(0,120)}` });
+app.post("/api/analyzeDream",async(req,res)=>{
+  const {text,zodiac,isPremium}=req.body;
+  const prompt=`Burç: ${zodiac}\nRüya: ${text}\nPremium:${isPremium}\nLütfen detaylı ve ilham verici rüya tabiri yap.`;
+  const r=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+process.env.OPENAI_API_KEY},
+    body:JSON.stringify({model:"gpt-4o-mini",messages:[{role:"user",content:prompt}]})
+  });
+  const j=await r.json();
+  res.json({analysis:j.choices[0].message.content});
 });
 
-app.post('/api/analyzeFortune', (req, res) => {
-  const { type } = req.body || {};
-  const pool = {
-    kahve: ['Kahvede sevgi işareti.', 'Yakında yolculuk olabilir.'],
-    el: ['Elinizde liderlik var.', 'Sağlık için dikkat.'],
-    tarot: ['Kart: Dönüşüm', 'Kart: Denge']
+app.post("/api/analyzeFortune",(req,res)=>{
+  const {type}=req.body;
+  const pool={
+    kahve:["Kahvede yol görünüyor.","Sevgi işareti belirdi."],
+    el:["Elinizde güçlü çizgiler var.","Uzun ömür sembolleri mevcut."],
+    tarot:["Kart: Dönüşüm zamanı.","Kart: Aşk kapıda."]
   };
-  res.json({ comment: pool[type] ? pool[type][Math.floor(Math.random()*pool[type].length)] : 'Fal yorumlanamadı.' });
+  const c=pool[type][Math.floor(Math.random()*pool[type].length)];
+  res.json({comment:c});
 });
 
-app.post('/api/visualize', (req, res) => {
-  // Gerçek uygulamada buradan bir image-generation servisi çağrılır.
-  res.json({ imageUrl: 'https://via.placeholder.com/640x360?text=Generated+Image' });
+app.post("/api/visualize",(req,res)=>{
+  res.json({imageUrl:"https://via.placeholder.com/640x360?text=Rüya+Görseli"});
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, ()=>console.log(`Mock API running on http://localhost:${port}`));
+app.listen(3000,()=>console.log("API çalışıyor http://localhost:3000"));
